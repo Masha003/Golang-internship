@@ -1,24 +1,32 @@
-version: '3.5'
-
-
 services:
   postgres:
-    container_name: postgres_demo
     image: postgres:latest
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-      POSTGRES_DB_NAME: postgres
-      PGDATA: /data/postgres
-      
-    volumes:
-      - postgres-db:/data/postgres
+      POSTGRES_DB: internship
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-db:/data/postgres
 
+  redis:
+    image: redis:latest
+    container_name: my_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # server:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "8080:8080"
 
 volumes:
   postgres-db:
-    driver: local
+  redis-data:

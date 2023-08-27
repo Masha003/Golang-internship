@@ -7,103 +7,129 @@ import (
 	"mime/multipart"
 	"os"
 
+	"github.com/Masha003/Golang-internship.git/internal/auth"
+	"github.com/Masha003/Golang-internship.git/internal/config"
+	"github.com/Masha003/Golang-internship.git/internal/data/repository"
 	"github.com/Masha003/Golang-internship.git/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// business logic
-
-type IUserRepository interface {
-	Insert(user *models.User) error
-	CheckIfEmailExist(mail string) bool
-	GetUserByID(id int) (*models.User, error)
-	GetUserByName(name string) (*models.User, error)
-	Delete(id int) error
-	UpdateUserImage(id int, path string) error
+type UserService interface {
+	Register(user models.RegisterUser) (models.Token, error)
+	Login(user models.LoginUser) (models.Token, error)
+	FindAll(query models.PaginationQuery) ([]models.User, error)
+	FindById(id string) (models.User, error)
+	FindByName(userName string) (models.User, error)
+	Delete(id string) error
+	UploadImage(id string, file *multipart.File, handler *multipart.FileHeader) error
 }
 
-type UserService struct {
-	userRepo IUserRepository
-}
-
-func NewUserSerice(userRepo IUserRepository) *UserService {
-	return &UserService{
+func NewUserService(userRepo repository.UserRepository, cfg config.Config) UserService {
+	return &userService{
 		userRepo: userRepo,
+		cfg:      cfg,
 	}
 }
 
-func (svc *UserService) Register(user *models.User) error {
-	if svc.userRepo.CheckIfEmailExist(user.Email) {
-		return errors.New("User already exists")
+type userService struct {
+	userRepo repository.UserRepository
+	cfg      config.Config
+}
+
+func (s *userService) Register(registerUser models.RegisterUser) (models.Token, error) {
+	var token models.Token
+
+	user, err := s.userRepo.FindByEmail(registerUser.Email)
+	if err == nil {
+		return token, errors.New("user with this email already exists")
 	}
 
-	hash, err := svc.GeneratePasswordHash(user.Password)
-
+	pass, err := generatePasswordHash(registerUser.Password)
 	if err != nil {
-		return errors.New("Can't register user")
+		return token, err
 	}
 
-	user.Password = hash
+	user.Email = registerUser.Email
+	user.Name = registerUser.Name
+	user.Password = pass
 
-	return svc.userRepo.Insert(user)
+	err = s.userRepo.Create(&user)
+	if err != nil {
+		return token, err
+	}
 
+	tokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
+	if err != nil {
+		return token, err
+	}
+
+	token.Token = tokenString
+	token.User = user
+
+	return token, nil
 }
 
-func (svc *UserService) GeneratePasswordHash(pass string) (string, error) {
+func (s *userService) Login(loginUser models.LoginUser) (models.Token, error) {
+	var token models.Token
+
+	user, err := s.userRepo.FindByEmail(loginUser.Email)
+	if err != nil {
+		return token, err
+	}
+
+	err = comparePasswordHash(user.Password, loginUser.Password)
+	if err != nil {
+		return token, err
+	}
+
+	tokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
+	if err != nil {
+		return token, err
+	}
+
+	token.Token = tokenString
+	token.User = user
+
+	return token, nil
+}
+
+func generatePasswordHash(pass string) (string, error) {
 	const salt = 14
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), salt)
 	if err != nil {
-		log.Printf("ERR: %v\n", err)
+		log.Printf("Error: %v\n", err)
 		return "", err
 	}
 
 	return string(hash), nil
 }
 
-func (svc *UserService) ComparePasswordHash(hash, pass string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
-
-	if err != nil {
-		log.Printf("Error: %v\n", err)
-	}
-
-	return nil
+func comparePasswordHash(hash, pass string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 }
 
-func (svc *UserService) GetUserByID(id int) (*models.User, error) {
-	user, err := svc.userRepo.GetUserByID(id)
-
-	if err != nil {
-		log.Printf("failed to get user by id: %v\n", err)
-		return nil, err
-	}
-
-	return user, nil
+func (s *userService) FindAll(query models.PaginationQuery) ([]models.User, error) {
+	return s.userRepo.FindAll(query)
 }
 
-func (svc *UserService) GetUserByName(userName string) (*models.User, error) {
-	user, err := svc.userRepo.GetUserByName(userName)
-
-	if err != nil {
-		log.Printf("Failed to find user by name: %v\n", err)
-		return nil, err
-	}
-
-	return user, nil
+func (s *userService) FindById(id string) (models.User, error) {
+	return s.userRepo.FindById(id)
 }
 
-func (svc *UserService) Delete(userID int) error {
-	err := svc.userRepo.Delete(userID)
+func (s *userService) FindByName(userName string) (models.User, error) {
+	return s.userRepo.FindByName(userName)
+}
 
+func (s *userService) Delete(id string) error {
+	user, err := s.userRepo.FindById(id)
 	if err != nil {
-		log.Printf("Failed to delete user from database: %v\n", err)
 		return err
 	}
 
-	return nil
+	return s.userRepo.Delete(&user)
 }
 
-func (svc *UserService) UploadImage(userID int, file *multipart.File, handler *multipart.FileHeader) error {
+func (s *userService) UploadImage(userID string, file *multipart.File, handler *multipart.FileHeader) error {
 	filePath := "./uploads/" + handler.Filename
 	outFile, err := os.Create(filePath)
 	if err != nil {
@@ -117,11 +143,13 @@ func (svc *UserService) UploadImage(userID int, file *multipart.File, handler *m
 		log.Printf("unable to upload image")
 		return err
 	}
-	err = svc.userRepo.UpdateUserImage(userID, filePath)
 
+	user, err := s.userRepo.FindById(userID)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	user.Image = filePath
+
+	return s.userRepo.Update(&user)
 }
