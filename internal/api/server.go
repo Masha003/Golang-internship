@@ -36,4 +36,6 @@ func registerUserRoutes(router *gin.RouterGroup, cfg config.Config, c controller
 	pr := r.Use(middleware.JwtAuth(cfg.Secret))
 	pr.GET("/current", c.GetCurrent)
 	pr.DELETE("/:id", c.Delete)
+	pr.POST("/uploads/:id", c.UploadImage)
+	pr.POST("/getimg/:id", c.GetImgByID)
 }

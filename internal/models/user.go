@@ -16,10 +16,11 @@ type RegisterUser struct {
 
 type LoginUser struct {
 	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8,max=50"`
+	Password string `json:"password"`
 }
 
 type Token struct {
-	User  User
-	Token string `json:"token"`
+	User         User
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateJWT(userId string, lifespan time.Duration, secret string) (string, error) {
+func GenerateJWT(userId string, lifespan time.Duration, secret string) (string, string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["user_id"] = userId
@@ -16,10 +16,19 @@ func GenerateJWT(userId string, lifespan time.Duration, secret string) (string, 
 
 	token, err := t.SignedString([]byte(secret))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	refreshToken := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := refreshToken.Claims.(jwt.MapClaims)
+	rtClaims["user_id"] = userId
+	rtClaims["exp"] = time.Now().Add(lifespan).Unix()
+	rt, err := refreshToken.SignedString([]byte("secret"))
+	if err != nil {
+		return "", "", err
+	}
+
+	return token, rt, nil
 }
 
 func Validate(tokenString string, secret string) (*jwt.Token, error) {
