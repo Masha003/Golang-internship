@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
+	controllers "github.com/Masha003/Golang-internship.git/internal/api/controllers/http-transport"
 	"github.com/Masha003/Golang-internship.git/internal/api/middleware"
 	"github.com/Masha003/Golang-internship.git/internal/config"
 
