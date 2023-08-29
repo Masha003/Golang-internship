@@ -16,7 +16,7 @@ import (
 
 type UserService interface {
 	Register(user models.RegisterUser) (models.Token, error)
-	Login(user models.LoginUser) (models.Token, error)
+	Login(user models.LoginUser) (models.Token, string, error)
 	FindAll(query models.PaginationQuery) ([]models.User, error)
 	FindById(id string) (models.User, error)
 	FindByName(userName string) (models.User, error)
@@ -58,39 +58,41 @@ func (s *userService) Register(registerUser models.RegisterUser) (models.Token, 
 		return token, err
 	}
 
-	tokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
+	tokenString, refreshTokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
 	if err != nil {
 		return token, err
 	}
 
 	token.Token = tokenString
+	token.RefreshToken = refreshTokenString
 	token.User = user
 
 	return token, nil
 }
 
-func (s *userService) Login(loginUser models.LoginUser) (models.Token, error) {
+func (s *userService) Login(loginUser models.LoginUser) (models.Token, string, error) {
 	var token models.Token
 
 	user, err := s.userRepo.FindByEmail(loginUser.Email)
 	if err != nil {
-		return token, err
+		return token, "", err
 	}
 
 	err = comparePasswordHash(user.Password, loginUser.Password)
 	if err != nil {
-		return token, err
+		return token, "", err
 	}
 
-	tokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
+	tokenString, refreshTokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
 	if err != nil {
-		return token, err
+		return token, refreshTokenString, err
 	}
 
 	token.Token = tokenString
+	token.RefreshToken = refreshTokenString
 	token.User = user
 
-	return token, nil
+	return token, refreshTokenString, nil
 }
 
 func generatePasswordHash(pass string) (string, error) {
@@ -133,19 +135,20 @@ func (s *userService) UploadImage(userID string, file *multipart.File, handler *
 	filePath := "./uploads/" + handler.Filename
 	outFile, err := os.Create(filePath)
 	if err != nil {
-		log.Printf("unable to upload image")
+		log.Printf("unable to upload image 1")
 		return err
 	}
 	defer outFile.Close()
 
 	_, err = io.Copy(outFile, *file)
 	if err != nil {
-		log.Printf("unable to upload image")
+		log.Printf("unable to upload image 2")
 		return err
 	}
 
 	user, err := s.userRepo.FindById(userID)
 	if err != nil {
+		log.Printf("unable to upload image 3: %v\n", err)
 		return err
 	}
 

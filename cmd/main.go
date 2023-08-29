@@ -41,7 +41,7 @@ func main() {
 
 	srv := api.NewServer(cfg, userController)
 
-	//// Boilerplte Grcefull Shutdown ////
+	//// Boilerpalte Gracefull Shutdown ////
 	go func() {
 		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal("Failed to start server")

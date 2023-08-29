@@ -16,7 +16,8 @@ type UserController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	Delete(ctx *gin.Context)
-	// UploadImage(ctx *gin.Context)
+	UploadImage(ctx *gin.Context)
+	GetImgByID(ctx *gin.Context)
 }
 
 func NewUserController(service service.UserService) UserController {
@@ -97,11 +98,19 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := c.service.Login(user)
+	token, refresh_token, err := c.service.Login(user)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+
+	http.SetCookie(ctx.Writer, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refresh_token,
+		HttpOnly: true,
+		Secure:   true, // Use HTTPS
+		SameSite: http.SameSiteNoneMode,
+	})
 
 	ctx.JSON(http.StatusOK, token)
 }
@@ -118,55 +127,39 @@ func (c *userController) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-// func (ctrl *UserController) GetImgByID(c *gin.Context) {
-// 	userIDStr := c.Param("id")
+func (c *userController) UploadImage(ctx *gin.Context) {
+	userIDStr := ctx.Param("id")
 
-// 	userID, err := strconv.Atoi(userIDStr)
+	file, h, err := ctx.Request.FormFile("path_to_image")
+	if err != nil {
+		log.Printf("Failed to get image")
+	}
 
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-// 			"error":   true,
-// 			"message": err.Error(),
-// 		})
-// 		return
-// 	}
+	defer file.Close()
 
-// 	user, err := ctrl.userService.GetUserByID(userID)
+	err = c.service.UploadImage(userIDStr, &file, h)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-// 			"error":   true,
-// 			"message": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	c.Header("Content-Type", "image/jpeg")
-// 	c.File(user.Image)
-// }
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "image uploaded",
+	})
+}
 
-// func (ctrl *UserController) UploadImage(c *gin.Context) {
-// 	userIDStr := c.Param("id")
+func (c *userController) GetImgByID(ctx *gin.Context) {
+	userID := ctx.Param("id")
 
-// 	userID, err := strconv.Atoi(userIDStr)
-// 	file, h, err := c.Request.FormFile("path_to_image")
-
-// 	if err != nil {
-// 		log.Printf("Failed to get image")
-// 	}
-
-// 	defer file.Close()
-
-// 	err = ctrl.userService.UploadImage(userID, &file, h)
-
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-// 			"error":   true,
-// 			"message": err.Error(),
-// 		})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"message": "image uploaded",
-// 	})
-// }
+	user, err := c.service.FindById(userID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	ctx.Header("Content-Type", "image/jpeg")
+	ctx.File(user.Image)
+}
