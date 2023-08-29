@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/Masha003/Golang-internship.git/internal/api"
-	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
+	controllers "github.com/Masha003/Golang-internship.git/internal/api/controllers/http-transport"
 	"github.com/Masha003/Golang-internship.git/internal/config"
 	"github.com/Masha003/Golang-internship.git/internal/data"
 	"github.com/Masha003/Golang-internship.git/internal/data/repository"
