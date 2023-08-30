@@ -1,0 +1,5 @@
+syntax = "proto";
+
+service UserService {
+    rpc GetById(User.ID) returns (User);
+}
