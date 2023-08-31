@@ -16,7 +16,7 @@ import (
 
 type UserService interface {
 	Register(user models.RegisterUser) (models.Token, error)
-	Login(user models.LoginUser) (models.Token, string, error)
+	Login(user models.LoginUser) (models.Token, error)
 	FindAll(query models.PaginationQuery) ([]models.User, error)
 	FindById(id string) (models.User, error)
 	FindByName(userName string) (models.User, error)
@@ -70,29 +70,29 @@ func (s *userService) Register(registerUser models.RegisterUser) (models.Token, 
 	return token, nil
 }
 
-func (s *userService) Login(loginUser models.LoginUser) (models.Token, string, error) {
+func (s *userService) Login(loginUser models.LoginUser) (models.Token, error) {
 	var token models.Token
 
 	user, err := s.userRepo.FindByEmail(loginUser.Email)
 	if err != nil {
-		return token, "", err
+		return token, err
 	}
 
 	err = comparePasswordHash(user.Password, loginUser.Password)
 	if err != nil {
-		return token, "", err
+		return token, err
 	}
 
 	tokenString, refreshTokenString, err := auth.GenerateJWT(user.ID, s.cfg.TokenLifespan, s.cfg.Secret)
 	if err != nil {
-		return token, refreshTokenString, err
+		return token, err
 	}
 
 	token.Token = tokenString
 	token.RefreshToken = refreshTokenString
 	token.User = user
 
-	return token, refreshTokenString, nil
+	return token, nil
 }
 
 func generatePasswordHash(pass string) (string, error) {
