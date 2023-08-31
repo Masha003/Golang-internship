@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	controllers "github.com/Masha003/Golang-internship.git/internal/api/controllers/http-transport"
+	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
 	"github.com/Masha003/Golang-internship.git/internal/api/middleware"
 	"github.com/Masha003/Golang-internship.git/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewServer(cfg config.Config, userController controllers.UserController) *http.Server {
+func NewHttpServer(cfg config.Config, userController controllers.UserController) *http.Server {
 	log.Print("Creating new server")
 
 	e := gin.Default()
@@ -21,7 +21,7 @@ func NewServer(cfg config.Config, userController controllers.UserController) *ht
 	registerUserRoutes(r, cfg, userController)
 
 	return &http.Server{
-		Addr:    ":" + cfg.Port,
+		Addr:    cfg.HttpPort,
 		Handler: e,
 	}
 }

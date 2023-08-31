@@ -10,7 +10,8 @@ import (
 
 type Config struct {
 	Host        string `env:"HOST" envDefault:"localhost"`
-	Port        string `env:"SERVER_PORT" envDefault:"8080"`
+	HttpPort    string `env:"SERVER_PORT" envDefault:":8080"`
+	GrpcPort    string `env:"GRPC_PORT" envDefault:":8090"`
 	AllowOrigin string `env:"ALLOW_ORIGIN" envDefault:"*"`
 	Env         string `env:"ENV" envDefault:"dev"`
 

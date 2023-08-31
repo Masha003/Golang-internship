@@ -1,4 +1,4 @@
-package httptransport
+package controllers
 
 import (
 	"log"
@@ -98,19 +98,11 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, refresh_token, err := c.service.Login(user)
+	token, err := c.service.Login(user)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
-	http.SetCookie(ctx.Writer, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refresh_token,
-		HttpOnly: true,
-		Secure:   true, // Use HTTPS
-		SameSite: http.SameSiteNoneMode,
-	})
 
 	ctx.JSON(http.StatusOK, token)
 }

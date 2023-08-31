@@ -18,15 +18,28 @@ services:
     volumes:
       - redis-data:/data
 
+  # rabbitmq: 
+  #   image: rabbitmq:3-management-alpine 
+  #   ports: 
+  #     - 5672:5672 
+  #     - 15672:15672 
+  #   volumes: 
+  #     - rabbitmq_data:/var/lib/rabbitmq 
+  #     - rabbitmq_log:/var/log/rabbitmq
+
   # server:
   #   build:
   #     context: .
   #     dockerfile: Dockerfile
   #   depends_on:
   #     - postgres
+  #     - redis
   #   ports:
   #     - "8080:8080"
+  #     - "8090:8090"
 
 volumes:
   postgres-db:
   redis-data:
+  # rabbitmq_data:
+  # rabbitmq_log:
