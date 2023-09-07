@@ -6,6 +6,7 @@ import (
 
 	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
 	"github.com/Masha003/Golang-internship.git/internal/api/middleware"
+	"github.com/Masha003/Golang-internship.git/internal/api/webbsocket"
 	"github.com/Masha003/Golang-internship.git/internal/config"
 
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,8 @@ func registerUserRoutes(router *gin.RouterGroup, cfg config.Config, c controller
 	r.POST("/login", c.Login)
 	r.GET("/", c.GetAll)
 	r.GET("/:id", c.GetById)
+
+	r.GET("/ws/:UserID", webbsocket.HandleWebsocket)
 
 	pr := r.Use(middleware.JwtAuth(cfg.Secret))
 	pr.GET("/current", c.GetCurrent)
