@@ -19,6 +19,7 @@ type Config struct {
 	TokenLifespan time.Duration `env:"TOKEN_LIFESPAN" envDefault:"24h"`
 	DatabaseUrl   string        `env:"DATABASE_URL" envDefault:"postgres://admin:password@localhost:5432/internship"`
 	RedisUrl      string        `env:"REDIS_URL" envDefault:"redis://@localhost:6379/"`
+	MongoUrl      string        `env:"MONGO_URL" envDefault:"mongodb://root:password@localhost:27017"`
 }
 
 func NewConfig() (Config, error) {

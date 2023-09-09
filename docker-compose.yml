@@ -18,14 +18,24 @@ services:
     volumes:
       - redis-data:/data
 
-  # rabbitmq: 
-  #   image: rabbitmq:3-management-alpine 
-  #   ports: 
-  #     - 5672:5672 
-  #     - 15672:15672 
-  #   volumes: 
-  #     - rabbitmq_data:/var/lib/rabbitmq 
-  #     - rabbitmq_log:/var/log/rabbitmq
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-db:/data/db
+
+  rabbitmq: 
+    image: rabbitmq:3-management-alpine 
+    ports: 
+      - 5672:5672 
+      - 15672:15672 
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq 
+      - rabbitmq_log:/var/log/rabbitmq
 
   # server:
   #   build:
@@ -39,7 +49,8 @@ services:
   #     - "8090:8090"
 
 volumes:
+  mongo-db:
   postgres-db:
   redis-data:
-  # rabbitmq_data:
-  # rabbitmq_log:
+  rabbitmq_data:
+  rabbitmq_log:
