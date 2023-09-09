@@ -12,6 +12,7 @@ import (
 
 	"github.com/Masha003/Golang-internship.git/internal/api"
 	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
+	"github.com/Masha003/Golang-internship.git/internal/api/rabbitmq"
 	"github.com/Masha003/Golang-internship.git/internal/config"
 	"github.com/Masha003/Golang-internship.git/internal/data"
 	"github.com/Masha003/Golang-internship.git/internal/data/repository"
@@ -24,6 +25,7 @@ func main() {
 		log.Fatal("Failed to load config: ", err)
 	}
 
+	// Databases
 	db, err := data.NewDB(cfg)
 	if err != nil {
 		log.Fatal("Failed to connect postgres database: ", err)
@@ -48,6 +50,10 @@ func main() {
 	}
 	userService := service.NewUserService(userRepository, cfg)
 	userController := controllers.NewUserController(userService)
+
+	// RabbitMQ
+	consumer := rabbitmq.NewConsumer(cfg, userService)
+	producer := rabbitmq.NewProducer(cfg)
 
 	// Start HTTP Server
 	httpSrv := api.NewHttpServer(cfg, userController)
@@ -98,6 +104,14 @@ func main() {
 	// Close Mongo Connection
 	if err = mongodb.Client().Disconnect(context.Background()); err != nil {
 		log.Fatal("Failed to connect mongodb connection: ", nil)
+	}
+
+	if err = consumer.Close(); err != nil {
+		log.Fatal("Failed to close consumer")
+	}
+
+	if err = producer.Close(); err != nil {
+		log.Fatal("Failed to close producer")
 	}
 
 	log.Print("Server exited properly")
