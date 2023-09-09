@@ -34,8 +34,18 @@ func main() {
 		log.Fatal("Failed to connect redis database: ", err)
 	}
 
+	mongodb, err := data.NewMongoDB(cfg)
+	if err != nil {
+		log.Fatal("Failed to connect mongo database: ", err)
+	}
+
 	// User
-	userRepository := repository.NewUserRepository(db, rdb)
+	var userRepository repository.UserRepository
+	if cfg.Env == "prod" {
+		userRepository = repository.NewUserRepository(db, rdb)
+	} else {
+		userRepository = repository.NewUserMongoRepository(rdb, mongodb)
+	}
 	userService := service.NewUserService(userRepository, cfg)
 	userController := controllers.NewUserController(userService)
 
@@ -83,6 +93,11 @@ func main() {
 	// Close Redis Connection
 	if err := rdb.Close(); err != nil {
 		log.Fatal("Failed to close redis connection: ", err)
+	}
+
+	// Close Mongo Connection
+	if err = mongodb.Client().Disconnect(context.Background()); err != nil {
+		log.Fatal("Failed to connect mongodb connection: ", nil)
 	}
 
 	log.Print("Server exited properly")
