@@ -99,29 +99,65 @@ func (r *userMongoRepository) FindAll(query models.PaginationQuery) ([]models.Us
 func (r *userMongoRepository) FindById(id string) (models.User, error) {
 	var user models.User
 
+	err := r.collection.FindOne(context.Background(), bson.M{"id": id}).Decode(&user)
+	if err != nil {
+		return user, err
+	}
+
 	return user, nil
 }
 
 func (r *userMongoRepository) Create(t *models.User) error {
+	_, err := r.collection.InsertOne(context.Background(), t)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (r *userMongoRepository) Update(t *models.User) error {
+	filer := bson.M{"id": t.ID}
+	updateDoc, err := bson.Marshal(t)
+	if err != nil {
+		return err
+	}
+	update := bson.M{"$set": updateDoc}
+
+	_, err = r.collection.UpdateOne(context.Background(), filer, update)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (r *userMongoRepository) Delete(t *models.User) error {
+	filer := bson.M{"id": t.ID}
+	_, err := r.collection.DeleteOne(context.Background(), filer)
+	if err != nil {
+		return nil
+	}
 	return nil
 }
 
 func (r *userMongoRepository) FindByEmail(email string) (models.User, error) {
 	var user models.User
 
+	err := r.collection.FindOne(context.Background(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return user, err
+	}
+
 	return user, nil
 }
 
 func (r *userMongoRepository) FindByName(name string) (models.User, error) {
 	var user models.User
+
+	err := r.collection.FindOne(context.Background(), bson.M{"name": name}).Decode(&user)
+	if err != nil {
+		return user, err
+	}
 
 	return user, nil
 }
