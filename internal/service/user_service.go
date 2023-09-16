@@ -7,10 +7,10 @@ import (
 	"mime/multipart"
 	"os"
 
-	"github.com/Masha003/Golang-internship.git/internal/auth"
-	"github.com/Masha003/Golang-internship.git/internal/config"
-	"github.com/Masha003/Golang-internship.git/internal/data/repository"
-	"github.com/Masha003/Golang-internship.git/internal/models"
+	"github.com/Masha003/Golang-internship/internal/auth"
+	"github.com/Masha003/Golang-internship/internal/config"
+	"github.com/Masha003/Golang-internship/internal/data/repository"
+	"github.com/Masha003/Golang-internship/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

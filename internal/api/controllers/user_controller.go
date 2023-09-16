@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Masha003/Golang-internship.git/internal/models"
-	"github.com/Masha003/Golang-internship.git/internal/service"
+	"github.com/Masha003/Golang-internship/internal/models"
+	"github.com/Masha003/Golang-internship/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

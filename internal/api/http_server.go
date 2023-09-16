@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
-	"github.com/Masha003/Golang-internship.git/internal/api/middleware"
-	"github.com/Masha003/Golang-internship.git/internal/api/webbsocket"
-	"github.com/Masha003/Golang-internship.git/internal/config"
+	"github.com/Masha003/Golang-internship/internal/api/controllers"
+	"github.com/Masha003/Golang-internship/internal/api/middleware"
+	"github.com/Masha003/Golang-internship/internal/api/webbsocket"
+	"github.com/Masha003/Golang-internship/internal/config"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Masha003/Golang-internship.git/internal/config"
+	"github.com/Masha003/Golang-internship/internal/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Masha003/Golang-internship.git/internal/auth"
+	"github.com/Masha003/Golang-internship/internal/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/Masha003/Golang-internship.git/internal/models"
+	"github.com/Masha003/Golang-internship/internal/models"
 	"gorm.io/gorm"
 )
 

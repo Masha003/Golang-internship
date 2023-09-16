@@ -10,13 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Masha003/Golang-internship.git/internal/api"
-	"github.com/Masha003/Golang-internship.git/internal/api/controllers"
-	"github.com/Masha003/Golang-internship.git/internal/api/rabbitmq"
-	"github.com/Masha003/Golang-internship.git/internal/config"
-	"github.com/Masha003/Golang-internship.git/internal/data"
-	"github.com/Masha003/Golang-internship.git/internal/data/repository"
-	"github.com/Masha003/Golang-internship.git/internal/service"
+	"github.com/Masha003/Golang-internship/internal/api"
+	"github.com/Masha003/Golang-internship/internal/api/controllers"
+	"github.com/Masha003/Golang-internship/internal/api/rabbitmq"
+	"github.com/Masha003/Golang-internship/internal/config"
+	"github.com/Masha003/Golang-internship/internal/data"
+	"github.com/Masha003/Golang-internship/internal/data/repository"
+	"github.com/Masha003/Golang-internship/internal/service"
 )
 
 func main() {

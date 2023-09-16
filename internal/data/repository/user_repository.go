@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Masha003/Golang-internship.git/internal/models"
+	"github.com/Masha003/Golang-internship/internal/models"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

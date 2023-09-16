@@ -1,4 +1,4 @@
-module github.com/Masha003/Golang-internship.git
+module github.com/Masha003/Golang-internship
 
 go 1.21.0
 

@@ -3,8 +3,8 @@ package data
 import (
 	"log"
 
-	"github.com/Masha003/Golang-internship.git/internal/config"
-	"github.com/Masha003/Golang-internship.git/internal/models"
+	"github.com/Masha003/Golang-internship/internal/config"
+	"github.com/Masha003/Golang-internship/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

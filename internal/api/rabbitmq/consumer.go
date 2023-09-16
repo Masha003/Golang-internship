@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/Masha003/Golang-internship.git/internal/config"
-	"github.com/Masha003/Golang-internship.git/internal/models"
-	"github.com/Masha003/Golang-internship.git/internal/service"
+	"github.com/Masha003/Golang-internship/internal/config"
+	"github.com/Masha003/Golang-internship/internal/models"
+	"github.com/Masha003/Golang-internship/internal/service"
 	"github.com/wagslane/go-rabbitmq"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/Masha003/Golang-internship.git/internal/config"
+	"github.com/Masha003/Golang-internship/internal/config"
 	"github.com/redis/go-redis/v9"
 )
 
