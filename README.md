@@ -1,5 +1,4 @@
 # Golang-internship
-Colța Maria
 
 ## Run Application with Docker
 
